@@ -53,9 +53,23 @@ class TSP_GRAPH():
     # This function implements the Travelling Salesperson Problem using hill-climbing. 
     # You are allowed to add parameters and helper functions to achieve this functionality.
     # For start and end nodes use the first node.
-    def hill_climbing(self):
-        print(self.graph)
+    def hill_climbing(self, start):
         print ("Hill-climbing implementation")
+        print(self.graph)
+
+        current = self.graph[start] #get starting node
+        visited = []
+        visited.append(start) # add first node to visted list
+        
+        for i in range(len(self.graph)): #loop to find the path, maxmum loop should = # of nodes
+            max = current.index(min(current)) #start max as min of current
+            for j in range(len(current)): # loop through neighbors to find max
+                next = current[j] # get neighbor
+                if next > current[max] and j not in visited: #if neighbor > then current max and not yet visited, set new max value
+                    max = j
+            visited.append(max)
+            current = self.graph[max]
+        return visited
 
     # This function implements the Travelling Salesperson Problem using random restart hill-climbing. 
     # You are allowed to add parameters and helper functions to achieve this functionality.        
@@ -171,19 +185,20 @@ if __name__ == "__main__":
     print ("\nTesting TSP_GRAPH functions.")
     g1 = TSP_GRAPH()
     g1.get_graph(0)
-    g1.hill_climbing()
-    g1.random_hill_climbing()
-    g1.stoch_hill_climbing()
+    l = g1.hill_climbing(0)
+    print(l)
+    #g1.random_hill_climbing()
+    #g1.stoch_hill_climbing()
 
     # Testing the Job-shop class functions.
-    print ("\nTesting JOB_GRAPH functions.")
-    g2 = JOB_GRAPH()
-    g2.get_jobs(0)
-    g2.sim_anneal()
-    g2.genetic()
+    #print ("\nTesting JOB_GRAPH functions.")
+    #g2 = JOB_GRAPH()
+    #g2.get_jobs(0)
+    #g2.sim_anneal()
+    #g2.genetic()
 
     # Testing COLOR_GRAPH functions.
-    print ("\nTesting COLOR_GRAPH functions.")
-    g3 = COLOR_GRAPH()
-    g3.get_graph('color_graph.txt')
-    g3.do_color()
+    #print ("\nTesting COLOR_GRAPH functions.")
+    #g3 = COLOR_GRAPH()
+    #g3.get_graph('color_graph.txt')
+    #g3.do_color()
