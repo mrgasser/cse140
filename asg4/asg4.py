@@ -53,23 +53,72 @@ class TSP_GRAPH():
     # This function implements the Travelling Salesperson Problem using hill-climbing. 
     # You are allowed to add parameters and helper functions to achieve this functionality.
     # For start and end nodes use the first node.
-    def hill_climbing(self, start):
+    def hill_climbing(self):
         print ("Hill-climbing implementation")
-        print(self.graph)
+        #print(self.graph)
 
-        current = self.graph[start] #get starting node
-        visited = []
-        visited.append(start) # add first node to visted list
+        path = self.find_path() #find path to use for hill climbing
+        if path == False:
+            return
+        print(path)
         
-        for i in range(len(self.graph)): #loop to find the path, maxmum loop should = # of nodes
-            max = current.index(min(current)) #start max as min of current
-            for j in range(len(current)): # loop through neighbors to find max
-                next = current[j] # get neighbor
-                if next > current[max] and j not in visited: #if neighbor > then current max and not yet visited, set new max value
-                    max = j
-            visited.append(max)
-            current = self.graph[max]
-        return visited
+
+
+        #for i in range(len(self.graph)): #loop to find the path, maxmum loop should = # of nodes
+         #   max = current.index(min(current)) #start max as min of current
+        #    for j in range(len(current)): # loop through neighbors to find max
+         #       next = current[j] # get neighbor
+         #       if next > current[max] and j not in visited: #if neighbor > then current max and not yet visited, set new max value
+         #           max = j
+         #   visited.append(max)
+         #   current = self.graph[max]
+        # return visited
+
+    #Starting functionm for recursively finding path
+    #calls recursive function and returns path
+    #if path doenst exists, it prints message and returns False
+    # reference used
+    # https://www.geeksforgeeks.org/hamiltonian-cycle-backtracking-6/
+    def find_path(self):
+        path = []
+        path.append(0) # start at vertex 0
+        path_count = 1
+
+        ans = self.find_path_rec(path, path_count) #call recursive function
+
+        # if false was returned print path doesnt exist, otherwise return the path
+        if ans[0] == False:
+            print("Path does not exist")
+            return False
+        else:
+            return ans[1] 
+
+    #recursive function to find path
+    def find_path_rec(self, path, path_count):
+
+        print(path)
+        print(path_count, self.V)
+
+        if path_count == self.V:
+            print("sane size")
+            print(self.graph[path[path_count-1]][path[0]])
+            if self.graph[path[path_count-1]][path[0]] != 0: #check if last node is adj to fisrt node
+                return (True, path)
+            else:
+                return (False, 0)
+
+        for v in range(1, self.V): #loop through list of vertex
+            if v not in path and self.graph[path[path_count-1]][v] > 0: #if vertex is not already in path, and is neighbor, add it to the path
+                path.append(v)
+                
+                ret = self.find_path_rec(path, path_count+1) #recursive call to find next node in path
+                if ret[0] == True: #if path doesnt exist remove last node
+                    return ret
+                
+                path.pop()
+        return (False, 0)
+
+
 
     # This function implements the Travelling Salesperson Problem using random restart hill-climbing. 
     # You are allowed to add parameters and helper functions to achieve this functionality.        
@@ -185,8 +234,7 @@ if __name__ == "__main__":
     print ("\nTesting TSP_GRAPH functions.")
     g1 = TSP_GRAPH()
     g1.get_graph(0)
-    l = g1.hill_climbing(0)
-    print(l)
+    g1.hill_climbing()
     #g1.random_hill_climbing()
     #g1.stoch_hill_climbing()
 
