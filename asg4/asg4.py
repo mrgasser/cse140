@@ -61,18 +61,56 @@ class TSP_GRAPH():
         if path == False:
             return
         print(path)
+        orig_cost = self.get_cost(path)
+        print(orig_cost)
+
+        for i in range(1, len(path) - 1):
+            for j in range(1, len(path) - 1):
+                new_path = self.swap(path, i, j)
+                if new_path == False:
+                    continue
+                else:
+                    new_cost = self.get_cost(new_path)
+                    if new_cost <= orig_cost:
+                        path = new_path
+                        orig_cost = new_cost
+        return path
+    
+    #function to get cost of path
+    #follows path through graph adding up cost
+    #returns total cost
+    def get_cost(self, path):
+        #print("geting cost")
+        cost = 0
+
+        #loop through all nodes of path - last node
+        #add up the cost of each node
+        for i in range(0, len(path) - 1):
+            cost += self.graph[path[i]][path[i+1]]
+        return cost 
+
+    #function to check if valid swap is acheivable
+    #a swap is valid if when swaping i and j, there is still a valid path
+    def swap(self, path, i, j):
+        #print("swaping")
+
+        if self.graph[path[i-1]][path[j]] == 0:
+            return False
+        if path[i] != path[-1]: #if at end of path, we dont need to check end + 1
+            if self.graph[path[j]][path[i+1]] == 0:
+                return False
+        if self.graph[path[j-1]][path[i]] == 0:
+            return False
+        if path[j] != path[-1]: #if at end of path, we dont need to check end + 1
+            if self.graph[path[i]][path[j+1]] == 0:
+                return False
+        #print("asctually swaping")
+        #now perform swap
+        temp = path[i]
+        path[i] = path[j]
+        path[j] = temp
+        return path #return new path with swap
         
-
-
-        #for i in range(len(self.graph)): #loop to find the path, maxmum loop should = # of nodes
-         #   max = current.index(min(current)) #start max as min of current
-        #    for j in range(len(current)): # loop through neighbors to find max
-         #       next = current[j] # get neighbor
-         #       if next > current[max] and j not in visited: #if neighbor > then current max and not yet visited, set new max value
-         #           max = j
-         #   visited.append(max)
-         #   current = self.graph[max]
-        # return visited
 
     #Starting functionm for recursively finding path
     #calls recursive function and returns path
@@ -91,17 +129,17 @@ class TSP_GRAPH():
             print("Path does not exist")
             return False
         else:
+            ans[1].append(0)
             return ans[1] 
 
     #recursive function to find path
     def find_path_rec(self, path, path_count):
 
-        print(path)
-        print(path_count, self.V)
+        #print(path)
+        #print(path_count, self.V)
 
         if path_count == self.V:
-            print("sane size")
-            print(self.graph[path[path_count-1]][path[0]])
+            #print(self.graph[path[path_count-1]][path[0]])
             if self.graph[path[path_count-1]][path[0]] != 0: #check if last node is adj to fisrt node
                 return (True, path)
             else:
@@ -117,8 +155,6 @@ class TSP_GRAPH():
                 
                 path.pop()
         return (False, 0)
-
-
 
     # This function implements the Travelling Salesperson Problem using random restart hill-climbing. 
     # You are allowed to add parameters and helper functions to achieve this functionality.        
@@ -234,7 +270,9 @@ if __name__ == "__main__":
     print ("\nTesting TSP_GRAPH functions.")
     g1 = TSP_GRAPH()
     g1.get_graph(0)
-    g1.hill_climbing()
+    l = g1.hill_climbing()
+    print(l)
+    
     #g1.random_hill_climbing()
     #g1.stoch_hill_climbing()
 
