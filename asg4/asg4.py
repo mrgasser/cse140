@@ -49,33 +49,8 @@ class TSP_GRAPH():
             self.graph = output_list
         else:
             print("NO FILE PROVIDED.")
-    
-    # This function implements the Travelling Salesperson Problem using hill-climbing. 
-    # You are allowed to add parameters and helper functions to achieve this functionality.
-    # For start and end nodes use the first node.
-    def hill_climbing(self):
-        print ("Hill-climbing implementation")
-        #print(self.graph)
 
-        path = self.find_path() #find path to use for hill climbing
-        if path == False:
-            return
-        print(path)
-        orig_cost = self.get_cost(path)
-        print(orig_cost)
-
-        for i in range(1, len(path) - 1):
-            for j in range(1, len(path) - 1):
-                new_path = self.swap(path, i, j)
-                if new_path == False:
-                    continue
-                else:
-                    new_cost = self.get_cost(new_path)
-                    if new_cost <= orig_cost:
-                        path = new_path
-                        orig_cost = new_cost
-        return path
-    
+    #### Helper functions for Hill Climbing
     #function to get cost of path
     #follows path through graph adding up cost
     #returns total cost
@@ -96,14 +71,12 @@ class TSP_GRAPH():
 
         if self.graph[path[i-1]][path[j]] == 0:
             return False
-        if path[i] != path[-1]: #if at end of path, we dont need to check end + 1
-            if self.graph[path[j]][path[i+1]] == 0:
-                return False
+        if self.graph[path[j]][path[i+1]] == 0:
+            return False
         if self.graph[path[j-1]][path[i]] == 0:
             return False
-        if path[j] != path[-1]: #if at end of path, we dont need to check end + 1
-            if self.graph[path[i]][path[j+1]] == 0:
-                return False
+        if self.graph[path[i]][path[j+1]] == 0:
+            return False
         #print("asctually swaping")
         #now perform swap
         temp = path[i]
@@ -111,7 +84,6 @@ class TSP_GRAPH():
         path[j] = temp
         return path #return new path with swap
         
-
     #Starting functionm for recursively finding path
     #calls recursive function and returns path
     #if path doenst exists, it prints message and returns False
@@ -154,7 +126,34 @@ class TSP_GRAPH():
                     return ret
                 
                 path.pop()
-        return (False, 0)
+        return (False, 0)        
+    
+    # This function implements the Travelling Salesperson Problem using hill-climbing. 
+    # You are allowed to add parameters and helper functions to achieve this functionality.
+    # For start and end nodes use the first node.
+    def hill_climbing(self):
+        print ("Hill-climbing implementation")
+        #print(self.graph)
+
+        path = self.find_path() #find path to use for hill climbing
+        if path == False:
+            return
+        print(path)
+        orig_cost = self.get_cost(path)
+        #print(orig_cost)
+
+        for i in range(1, len(path) - 1):
+            for j in range(1, len(path) - 1):
+                new_path = self.swap(path, i, j)
+                if new_path == False:
+                    continue
+                else:
+                    new_cost = self.get_cost(new_path)
+                    if new_cost <= orig_cost:
+                        path = new_path
+                        orig_cost = new_cost
+        #print(orig_cost)
+        return path
 
     # This function implements the Travelling Salesperson Problem using random restart hill-climbing. 
     # You are allowed to add parameters and helper functions to achieve this functionality.        
@@ -269,10 +268,10 @@ if __name__ == "__main__":
     # Testing TSP_GRAPH file reading and printing and functions.
     print ("\nTesting TSP_GRAPH functions.")
     g1 = TSP_GRAPH()
-    g1.get_graph(0)
+    g1.get_graph(12)
     l = g1.hill_climbing()
     print(l)
-    
+
     #g1.random_hill_climbing()
     #g1.stoch_hill_climbing()
 
