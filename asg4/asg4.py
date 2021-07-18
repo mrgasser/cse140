@@ -2,6 +2,7 @@ import sys
 from ast import literal_eval
 import random
 import fileinput
+import copy
 
 # This is the file in which you need to write code for assignment 4.
 # Code is to be written in python3.
@@ -50,7 +51,9 @@ class TSP_GRAPH():
         else:
             print("NO FILE PROVIDED.")
 
-    #### Helper functions for Hill Climbing
+
+    #### Helper functions for hill_climbing
+
     #function to get cost of path
     #follows path through graph adding up cost
     #returns total cost
@@ -68,21 +71,22 @@ class TSP_GRAPH():
     #a swap is valid if when swaping i and j, there is still a valid path
     def swap(self, path, i, j):
         #print("swaping")
+        temp = copy.deepcopy(path)
 
-        if self.graph[path[i-1]][path[j]] == 0:
+        if self.graph[temp[i-1]][temp[j]] == 0:
             return False
-        if self.graph[path[j]][path[i+1]] == 0:
+        if self.graph[temp[j]][temp[i+1]] == 0:
             return False
-        if self.graph[path[j-1]][path[i]] == 0:
+        if self.graph[temp[j-1]][temp[i]] == 0:
             return False
-        if self.graph[path[i]][path[j+1]] == 0:
+        if self.graph[temp[i]][temp[j+1]] == 0:
             return False
-        #print("asctually swaping")
+
         #now perform swap
-        temp = path[i]
-        path[i] = path[j]
-        path[j] = temp
-        return path #return new path with swap
+        v = temp[i]
+        temp[i] = temp[j]
+        temp[j] = v
+        return temp #return new path with swap
         
     #Starting functionm for recursively finding path
     #calls recursive function and returns path
@@ -106,9 +110,6 @@ class TSP_GRAPH():
 
     #recursive function to find path
     def find_path_rec(self, path, path_count):
-
-        #print(path)
-        #print(path_count, self.V)
 
         if path_count == self.V:
             #print(self.graph[path[path_count-1]][path[0]])
@@ -139,8 +140,8 @@ class TSP_GRAPH():
         if path == False:
             return
         print(path)
-        orig_cost = self.get_cost(path)
-        #print(orig_cost)
+        min_cost = self.get_cost(path)
+        print("starting path cost", min_cost)
 
         for i in range(1, len(path) - 1):
             for j in range(1, len(path) - 1):
@@ -149,11 +150,62 @@ class TSP_GRAPH():
                     continue
                 else:
                     new_cost = self.get_cost(new_path)
-                    if new_cost <= orig_cost:
+                    if new_cost <= min_cost:
                         path = new_path
-                        orig_cost = new_cost
-        #print(orig_cost)
+                        min_cost = new_cost
+
+        print("cost of final path:", self.get_cost(path))
         return path
+
+    ##### Helper functions for random_hill_climbing
+
+    #function to find random path for random hill climbing
+    def find_random_path(self):
+        #print("finding random path")
+        path = []
+        path.append(0) # start at vertex 0
+        path_count = 1
+
+        ans = self.find_random_path_rec(path, path_count) #call recursive function
+
+        # if false was returned print path doesnt exist, otherwise return the path
+        if ans[0] == False:
+            print("Path does not exist")
+            return False
+        else:
+            ans[1].append(0)
+            return ans[1]
+    
+    #function to recursively find a random path from start to end
+    def find_random_path_rec(self, path, path_count):
+
+        if path_count == self.V:
+            #print(self.graph[path[path_count-1]][path[0]])
+            if self.graph[path[path_count-1]][path[0]] != 0: #check if last node is adj to fisrt node
+                return (True, path)
+            else:
+                return (False, 0)
+
+        for v in range(1, self.V): #loop through list of vertex
+
+            neighbors = self.create_adj_list(path, path_count) #get list of neighbors
+            if len(neighbors) > 1:
+                r_vertex = neighbors[random.randint(0, len(neighbors) - 1)] #get a random vertex from list of neighbors
+                path.append(r_vertex) #add random vertex to path
+            
+                ret = self.find_random_path_rec(path, path_count+1) #recursive call to find next node in path
+                if ret[0] == True: #if path exist return path
+                    return ret
+                
+                path.pop()
+        return (False, 0)    
+
+    def create_adj_list(self, path, path_count):
+        adj_list = []
+        for v in range(1, self.V): #loop through list of vertexs and build list of neigbors
+                if v not in path and self.graph[path[path_count-1]][v] > 0: #if vertex is not already in path, and is neighbor, add it to the path
+                    adj_list.append(v)
+        return adj_list
 
     # This function implements the Travelling Salesperson Problem using random restart hill-climbing. 
     # You are allowed to add parameters and helper functions to achieve this functionality.        
@@ -161,6 +213,35 @@ class TSP_GRAPH():
     # use the imported random modules "randint()" or "random()" function to get the random value. 
     def random_hill_climbing(self):
         print ("Random restart hill-climbing implementation")
+
+        # do 100 iterations of random
+        # return best path from iterations
+        min_path = self.find_path()
+
+        for i in range(100):
+            #generate random state
+            #run HC on random state
+            #save and returnlowest cost path
+            rand_path = self.find_random_path()
+            curr_cost = self.get_cost(rand_path)
+            #print(orig_cost)
+
+            for i in range(1, len(rand_path) - 1):
+                for j in range(1, len(rand_path) - 1):
+                    new_path = self.swap(rand_path, i, j)
+                if new_path == False:
+                    continue
+                else:
+                    new_cost = self.get_cost(new_path)
+                    if new_cost <= curr_cost:
+                        rand_path = new_path
+                        curr_cost = new_cost
+
+            if self.get_cost(rand_path) <= self.get_cost(min_path):
+                min_path = rand_path
+
+        print(self.get_cost(min_path))
+        return min_path
 
     # This function implements the Travelling Salesperson Problem using stochastic hill-climbing. 
     # You are allowed to add parameters and helper functions to achieve this functionality.        
@@ -268,11 +349,12 @@ if __name__ == "__main__":
     # Testing TSP_GRAPH file reading and printing and functions.
     print ("\nTesting TSP_GRAPH functions.")
     g1 = TSP_GRAPH()
-    g1.get_graph(12)
+    g1.get_graph(0)
     l = g1.hill_climbing()
     print(l)
 
-    #g1.random_hill_climbing()
+    p = g1.random_hill_climbing()
+    print(p)
     #g1.stoch_hill_climbing()
 
     # Testing the Job-shop class functions.
