@@ -1,3 +1,4 @@
+from hashlib import new
 import sys
 from ast import literal_eval
 import random
@@ -178,7 +179,8 @@ class TSP_GRAPH():
     
     #function to recursively find a random path from start to end
     def find_random_path_rec(self, path, path_count):
-
+        print("path_cout", path_count)
+        print(self.V)
         if path_count == self.V:
             #print(self.graph[path[path_count-1]][path[0]])
             if self.graph[path[path_count-1]][path[0]] != 0: #check if last node is adj to fisrt node
@@ -189,15 +191,18 @@ class TSP_GRAPH():
         for v in range(1, self.V): #loop through list of vertex
 
             neighbors = self.create_adj_list(path, path_count) #get list of neighbors
-            if len(neighbors) > 1:
-                r_vertex = neighbors[random.randint(0, len(neighbors) - 1)] #get a random vertex from list of neighbors
-                path.append(r_vertex) #add random vertex to path
+            if len(neighbors) > 0:
+                for i in range(0, len(neighbors)):
+                    r_index = random.randint(0, len(neighbors) - 1) #generate random index
+                    vertex = neighbors[r_index] #get vertex using random index
+                    path.append(vertex) #add random vertex to path
             
-                ret = self.find_random_path_rec(path, path_count+1) #recursive call to find next node in path
-                if ret[0] == True: #if path exist return path
-                    return ret
+                    ret = self.find_random_path_rec(path, path_count+1) #recursive call to find next node in path
+                    if ret[0] == True: #if path exist return path
+                        return ret
                 
-                path.pop()
+                    path.pop()
+                    neighbors.pop(r_index)
         return (False, 0)    
 
     def create_adj_list(self, path, path_count):
@@ -247,12 +252,35 @@ class TSP_GRAPH():
     # You are allowed to add parameters and helper functions to achieve this functionality.        
     # For start and end nodes use the first node.
     # Use the imported random modules "randint()" or "random()" function to get the random value. 
-    # You can use any values for bounds and step size (please choose values that make senes) as long
-    # as you use 10,000 total number of steps. 
     def stoch_hill_climbing(self):
         print("Stochastic hill-climbing implementation")
 
+        path = self.find_path() #find path to use for hill climbing
+        if path == False:
+            return
+        print(path)
+        min_cost = self.get_cost(path)
+        print("starting path cost", min_cost)
 
+        d = {} #dictionary to hold uphill moves
+        prob = {} #dictionart to hold probability of random moves
+        for i in range(1, len(path) - 1):
+            for j in range(1, len(path) - 1):
+                new_path = self.swap(path, i, j)
+                if new_path == False:
+                    continue
+                else:
+                    new_cost = self.get_cost(new_path)
+                    if new_cost <= min_cost:
+                        p = ((min_cost - new_cost) / min_cost) * 100 #get percent decrease
+                        move = random.randint(1, 100) #generate # between 1 and 100
+                        if p >= move: #if the prob of the move is >= random number, make the move
+                            path = new_path
+                            min_cost = new_cost
+
+        print("cost of final path:", self.get_cost(path))
+        return path
+        
 
 # This class is supposed to handle the Travelling Salesperson Problem and it's associated functions. To implement TSP,
 # for the start and end nodes use the first node. A solution or a globally optimal is not garunteed. 
@@ -344,18 +372,18 @@ class COLOR_GRAPH():
 # For the assignment's final output, call the graph coloring first and based on the result generated, call the TSP and JOB-SHOP functions as described 
 # in the pdf. 
 if __name__ == "__main__":
-    
-    
+     
     # Testing TSP_GRAPH file reading and printing and functions.
     print ("\nTesting TSP_GRAPH functions.")
     g1 = TSP_GRAPH()
     g1.get_graph(0)
-    l = g1.hill_climbing()
-    print(l)
+    #l = g1.hill_climbing()
+    #print(l)
 
-    p = g1.random_hill_climbing()
-    print(p)
-    #g1.stoch_hill_climbing()
+    #p = g1.random_hill_climbing()
+    #print(p)
+
+    g1.stoch_hill_climbing()
 
     # Testing the Job-shop class functions.
     #print ("\nTesting JOB_GRAPH functions.")
