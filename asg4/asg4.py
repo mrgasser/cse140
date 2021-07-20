@@ -1,4 +1,5 @@
 from hashlib import new
+from os import sched_get_priority_max
 import sys
 from ast import literal_eval
 import random
@@ -315,6 +316,26 @@ class JOB_GRAPH():
                 jobss = [(int(machine), int(time)) for machine, time in zip(*[iter(f.split())]*2)] 
                 self.jobs.append(jobss)
 
+    # Helper functions for sim_anneal
+
+    def schedule_time():
+        print("generating schedule time")
+
+    #function creates a schedule from a jobs list 
+    def create_schedule(self, job_list):
+        print("creating schedule from job list")
+        schedule = []
+        for i in range(len(job_list)): #loop through each job
+            mk = []
+            for b in range(len(job_list)):
+
+                for j in job_list[i]: #for each job loop through and find the ith job, at it to the ith schedule
+                    if j[0] == i:
+                        mk.append(j)
+                schedule.append(mk) #add ith machine 
+        return schedule
+
+
     # This function implements the simulted annealing version of the job-shop problem. Use a starting temperature of 500.
     # Decrease the temperature in increments of  0.5. This algorithm is not time limited but is limited stagnation (no improvement)
     # after 10,000 steps. Use appropriate values for other values. 
@@ -322,8 +343,16 @@ class JOB_GRAPH():
     def sim_anneal(self):
         print(self.NJ)
         print(self.NM)
-        print(self.jobs)
+        #print(self.jobs)
+        for i in self.jobs:
+            print(i)
+
         print("SIMULATED ANNEALING")
+        schedule = self.create_schedule(self.jobs)
+        for i in schedule:
+            print(i)
+
+        # need to find 
 
     # This function implements the genetic algorithm version of the job-shop problem.
     # Use random selection select the parents. Use the "random" or "randint" function to get the value for this purpose.
@@ -366,6 +395,7 @@ class COLOR_GRAPH():
     # You are allowed to add parameters and define helper functions to achieve this functionality.
     def do_color(self):
         print (self.graph)
+        # use backtracking to solve graph coloring
  
 # This is the __main__ for this program. The program starts here. You are allowed to make changes as needed.
 # Right now it just calls all the functions in the different classes defined above.
@@ -374,16 +404,16 @@ class COLOR_GRAPH():
 if __name__ == "__main__":
      
     # Testing TSP_GRAPH file reading and printing and functions.
-    print ("\nTesting TSP_GRAPH functions.")
-    g1 = TSP_GRAPH()
-    g1.get_graph(0)
+    #print ("\nTesting TSP_GRAPH functions.")
+    #g1 = TSP_GRAPH()
+    #g1.get_graph(0)
     #l = g1.hill_climbing()
     #print(l)
 
     #p = g1.random_hill_climbing()
     #print(p)
 
-    g1.stoch_hill_climbing()
+    #g1.stoch_hill_climbing()
 
     # Testing the Job-shop class functions.
     #print ("\nTesting JOB_GRAPH functions.")
@@ -393,7 +423,7 @@ if __name__ == "__main__":
     #g2.genetic()
 
     # Testing COLOR_GRAPH functions.
-    #print ("\nTesting COLOR_GRAPH functions.")
-    #g3 = COLOR_GRAPH()
-    #g3.get_graph('color_graph.txt')
-    #g3.do_color()
+    print ("\nTesting COLOR_GRAPH functions.")
+    g3 = COLOR_GRAPH()
+    g3.get_graph('color_graph.txt')
+    g3.do_color()
