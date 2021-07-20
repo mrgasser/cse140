@@ -6,6 +6,7 @@ from ast import literal_eval
 import random
 import fileinput
 import copy
+import time
 
 # This is the file in which you need to write code for assignment 4.
 # Code is to be written in python3.
@@ -115,7 +116,6 @@ class TSP_GRAPH():
     def find_path_rec(self, path, path_count):
 
         if path_count == self.V:
-            #print(self.graph[path[path_count-1]][path[0]])
             if self.graph[path[path_count-1]][path[0]] != 0: #check if last node is adj to fisrt node
                 return (True, path)
             else:
@@ -142,9 +142,7 @@ class TSP_GRAPH():
         path = self.find_path() #find path to use for hill climbing
         if path == False:
             return
-        print(path)
         min_cost = self.get_cost(path)
-        print("starting path cost", min_cost)
 
         for i in range(1, len(path) - 1):
             for j in range(1, len(path) - 1):
@@ -157,7 +155,6 @@ class TSP_GRAPH():
                         path = new_path
                         min_cost = new_cost
 
-        print("cost of final path:", self.get_cost(path))
         return path
 
     ##### Helper functions for random_hill_climbing
@@ -181,30 +178,27 @@ class TSP_GRAPH():
     
     #function to recursively find a random path from start to end
     def find_random_path_rec(self, path, path_count):
-        print("path_cout", path_count)
-        print(self.V)
+        
         if path_count == self.V:
-            #print(self.graph[path[path_count-1]][path[0]])
             if self.graph[path[path_count-1]][path[0]] != 0: #check if last node is adj to fisrt node
                 return (True, path)
             else:
                 return (False, 0)
 
+        neighbors = self.create_adj_list(path, path_count) #get list of neighbors
         for v in range(1, self.V): #loop through list of vertex
 
-            neighbors = self.create_adj_list(path, path_count) #get list of neighbors
             if len(neighbors) > 0:
-                for i in range(0, len(neighbors)):
-                    r_index = random.randint(0, len(neighbors) - 1) #generate random index
-                    vertex = neighbors[r_index] #get vertex using random index
-                    path.append(vertex) #add random vertex to path
+                r_index = random.randint(0, len(neighbors) - 1) #generate random index
+                vertex = neighbors[r_index] #get vertex using random index
+                path.append(vertex) #add random vertex to path
             
-                    ret = self.find_random_path_rec(path, path_count+1) #recursive call to find next node in path
-                    if ret[0] == True: #if path exist return path
-                        return ret
+                ret = self.find_random_path_rec(path, path_count+1) #recursive call to find next node in path
+                if ret[0] == True: #if path exist return path
+                    return ret
                 
-                    path.pop()
-                    neighbors.pop(r_index)
+                path.pop()
+                neighbors.pop(r_index)
         return (False, 0)    
 
     def create_adj_list(self, path, path_count):
@@ -231,7 +225,6 @@ class TSP_GRAPH():
             #save and returnlowest cost path
             rand_path = self.find_random_path()
             curr_cost = self.get_cost(rand_path)
-            #print(orig_cost)
 
             for i in range(1, len(rand_path) - 1):
                 for j in range(1, len(rand_path) - 1):
@@ -247,7 +240,6 @@ class TSP_GRAPH():
             if self.get_cost(rand_path) <= self.get_cost(min_path):
                 min_path = rand_path
 
-        print(self.get_cost(min_path))
         return min_path
 
     # This function implements the Travelling Salesperson Problem using stochastic hill-climbing. 
@@ -262,7 +254,6 @@ class TSP_GRAPH():
             return
         print(path)
         min_cost = self.get_cost(path)
-        print("starting path cost", min_cost)
 
         for i in range(1, len(path) - 1):
             for j in range(1, len(path) - 1):
@@ -277,10 +268,7 @@ class TSP_GRAPH():
                         if p >= move: #if the prob of the move is >= random number, make the move
                             path = new_path
                             min_cost = new_cost
-
-        print("cost of final path:", self.get_cost(path))
         return path
-        
 
 # This class is supposed to handle the Travelling Salesperson Problem and it's associated functions. To implement TSP,
 # for the start and end nodes use the first node. A solution or a globally optimal is not garunteed. 
@@ -391,12 +379,12 @@ class COLOR_GRAPH():
 
     # Helper functions for do_color
 
-
+    #backtracking fo
     def backtracking(self):
         color = [0] * self.V #solution list
-        m = 3 #number of colors
+        n = 3 #number of colors
 
-        ans = self.backtracking_rec(m, color, 0) #call recursive function
+        ans = self.backtracking_rec(n, color, 0) #call recursive function
 
         # if false was returned print path doesnt exist, otherwise return the path
         if ans[0] == False:
@@ -406,16 +394,16 @@ class COLOR_GRAPH():
             return ans[1] 
 
     #recursive function to find path
-    def backtracking_rec(self, m, color, counter):
+    def backtracking_rec(self, n, color, counter):
 
         if counter == self.V:
             return (True, color)
 
-        for v in range(1, m + 1): #loop through domain
-            if self.isSafe(counter, color, v):
+        for v in range(1, n + 1): #loop through domain
+            if self.Safe(counter, color, v):
                 color[counter] = v
 
-                ret = self.backtracking_rec(m, color, counter+1) #recursive call to find next color of next node
+                ret = self.backtracking_rec(n, color, counter+1) #recursive call to find next color of next node
                 if ret[0] == True: #if path doesnt exist remove last node
                     return ret
                 
@@ -424,7 +412,7 @@ class COLOR_GRAPH():
 
     #determine if solution is valid
     #compares all edges of graph and check if each one is valid
-    def isSafe(self, counter, color, v):
+    def Safe(self, counter, color, v):
         for i in range(self.V):
             if self.graph[counter][i] == 1 and color[i] == v:
                 return False
@@ -438,40 +426,58 @@ class COLOR_GRAPH():
 
         for i in range(0, len(sol)):
             if sol[i] == 1: # if color 1 print tsp for ith file
+                print("color 1")
+                print("vertex:", i)
                 graph = TSP_GRAPH()
-                
+                graph.get_graph(i)
+                p = graph.hill_climbing()
+                print_path(p)
+                p = graph.random_hill_climbing()
+                print_path(p)
+                p = graph.stoch_hill_climbing()
+                print_path(p)
             if sol[i] == 2: #if color 2 do job scheduling
-                continue # wasnt able to complete therefore continue
+                print("color 2")
+                print("vertex:", i)
+                continue # wasnt able to complete, therefore continue
             if sol[i] == 3:
-                print("pritn stats")
- 
+                print("color 3")
+                print("vertex:", i)
+                graph = TSP_GRAPH()
+                graph.get_graph(i)
+
+                start_time = time.time()
+                p = graph.hill_climbing()
+                end_time = time.time()
+                print("Run time of Hill Climbing:", end_time - start_time)
+                print_path(p)
+
+                start_time = time.time()
+                p = graph.random_hill_climbing()
+                end_time = time.time()
+                print("Run time of Random Hill Climbing:", end_time - start_time)
+                print_path(p)
+            
+                start_time = time.time()
+                p = graph.stoch_hill_climbing()
+                end_time = time.time()
+                print("Run time of Stochastic Hill Climbing:", end_time - start_time)
+                print_path(p)
+
+def print_path(path):
+    s = ""
+    for i in range(0, len(path)):
+        s += str(path[i])
+        if i < len(path) - 1:
+            s += "->"
+    print(s)
+
 # This is the __main__ for this program. The program starts here. You are allowed to make changes as needed.
 # Right now it just calls all the functions in the different classes defined above.
 # For the assignment's final output, call the graph coloring first and based on the result generated, call the TSP and JOB-SHOP functions as described 
 # in the pdf. 
 if __name__ == "__main__":
-     
-    # Testing TSP_GRAPH file reading and printing and functions.
-    #print ("\nTesting TSP_GRAPH functions.")
-    #g1 = TSP_GRAPH()
-    #g1.get_graph(0)
-    #l = g1.hill_climbing()
-    #print(l)
-
-    #p = g1.random_hill_climbing()
-    #print(p)
-
-    #g1.stoch_hill_climbing()
-
-    # Testing the Job-shop class functions.
-    #print ("\nTesting JOB_GRAPH functions.")
-    #g2 = JOB_GRAPH()
-    #g2.get_jobs(0)
-    #g2.sim_anneal()
-    #g2.genetic()
-
-    # Testing COLOR_GRAPH functions.
-    print("\nTesting COLOR_GRAPH functions.")
+    
     g3 = COLOR_GRAPH()
     g3.get_graph('color_graph.txt')
     g3.do_color()
