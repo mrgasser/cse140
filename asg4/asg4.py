@@ -1,4 +1,5 @@
 from hashlib import new
+from itertools import count
 from os import sched_get_priority_max
 import sys
 from ast import literal_eval
@@ -263,8 +264,6 @@ class TSP_GRAPH():
         min_cost = self.get_cost(path)
         print("starting path cost", min_cost)
 
-        d = {} #dictionary to hold uphill moves
-        prob = {} #dictionart to hold probability of random moves
         for i in range(1, len(path) - 1):
             for j in range(1, len(path) - 1):
                 new_path = self.swap(path, i, j)
@@ -352,7 +351,6 @@ class JOB_GRAPH():
         for i in schedule:
             print(i)
 
-        # need to find 
 
     # This function implements the genetic algorithm version of the job-shop problem.
     # Use random selection select the parents. Use the "random" or "randint" function to get the value for this purpose.
@@ -391,11 +389,61 @@ class COLOR_GRAPH():
         else:
             print("NO FILE PROVIDED.")
 
+    # Helper functions for do_color
+
+
+    def backtracking(self):
+        color = [0] * self.V #solution list
+        m = 3 #number of colors
+
+        ans = self.backtracking_rec(m, color, 0) #call recursive function
+
+        # if false was returned print path doesnt exist, otherwise return the path
+        if ans[0] == False:
+            print("Graph cannot be colored")
+            return False
+        else:
+            return ans[1] 
+
+    #recursive function to find path
+    def backtracking_rec(self, m, color, counter):
+
+        if counter == self.V:
+            return (True, color)
+
+        for v in range(1, m + 1): #loop through domain
+            if self.isSafe(counter, color, v):
+                color[counter] = v
+
+                ret = self.backtracking_rec(m, color, counter+1) #recursive call to find next color of next node
+                if ret[0] == True: #if path doesnt exist remove last node
+                    return ret
+                
+                color[counter] = 0
+        return (False, 0)    
+
+    #determine if solution is valid
+    #compares all edges of graph and check if each one is valid
+    def isSafe(self, counter, color, v):
+        for i in range(self.V):
+            if self.graph[counter][i] == 1 and color[i] == v:
+                return False
+        return True
+        
     # This is the fucntion where you're supposed to implement the graph coloring algorithm. Right now it only prints the graph.
     # You are allowed to add parameters and define helper functions to achieve this functionality.
     def do_color(self):
-        print (self.graph)
-        # use backtracking to solve graph coloring
+
+        sol = self.backtracking()
+
+        for i in range(0, len(sol)):
+            if sol[i] == 1: # if color 1 print tsp for ith file
+                graph = TSP_GRAPH()
+                
+            if sol[i] == 2: #if color 2 do job scheduling
+                continue # wasnt able to complete therefore continue
+            if sol[i] == 3:
+                print("pritn stats")
  
 # This is the __main__ for this program. The program starts here. You are allowed to make changes as needed.
 # Right now it just calls all the functions in the different classes defined above.
@@ -423,7 +471,7 @@ if __name__ == "__main__":
     #g2.genetic()
 
     # Testing COLOR_GRAPH functions.
-    print ("\nTesting COLOR_GRAPH functions.")
+    print("\nTesting COLOR_GRAPH functions.")
     g3 = COLOR_GRAPH()
     g3.get_graph('color_graph.txt')
     g3.do_color()
