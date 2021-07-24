@@ -84,28 +84,28 @@ class SnakeAgent:
         # 0 = up, 1 = down, 2 = left, 3 = right
         for i in range(0, 4):
             if i == 0: #up case
-                if snake_head_y + 40 == 480: #if border is above, can't move up
+                if snake_head_y - 40 < 40: #if border is above, can't move up
                     continue
                 for b in snake_body: # check if no body part is in the way
-                    if snake_head_y + 40 == b[1]: #check if body part is above
+                    if snake_head_y - 40 == b[1]: #check if body part is above
                         continue
                 moves.append(0)
             if i == 1: #down case
-                if snake_head_y - 40 == 480: #if border is below, can't move down
+                if snake_head_y + 40 > 480: #if border is below, can't move down
                     continue
                 for b in snake_body: # check if no body part is in the way
-                    if snake_head_y - 40 == b[1]: #check if body part is below
+                    if snake_head_y + 40 == b[1]: #check if body part is below
                         continue
                 moves.append(1)
             if i == 2: #left case
-                if snake_head_x - 40 == 480: #if border is to the left, can't move there
+                if snake_head_x - 40 < 40: #if border is to the left, can't move there
                     continue
                 for b in snake_body: # check if no body part is in the way
                     if snake_head_x - 40 == b[0]: #check if body part is to the left
                         continue
                 moves.append(2)
             if i == 3: #right case
-                if snake_head_x + 40 == 480: #if border is to the right, can't move there
+                if snake_head_x + 40 > 480: #if border is to the right, can't move there
                     continue
                 for b in snake_body: # check if no body part is in the way
                     if snake_head_x + 40 == b[0]: #check if body is to the right
@@ -146,10 +146,11 @@ class SnakeAgent:
         print("IN AGENT_ACTION")
         print(state)
         moves = self.helper_func(state)
-        if 0 in moves:
-            return 0
-        else:
-            return 
+        
+        if 1 in moves:
+            return 1
+        elif 3 in moves:
+            return 3
         # YOUR CODE HERE
         # YOUR CODE HERE
         # YOUR CODE HERE
