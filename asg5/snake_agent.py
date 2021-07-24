@@ -60,12 +60,58 @@ class SnakeAgent:
     #   conditions mentioned above.
     def helper_func(self, state):
         print("IN helper_func")
-        # YOUR CODE HERE
-        # YOUR CODE HERE
-        # YOUR CODE HERE
-        # YOUR CODE HERE
-        # YOUR CODE HERE
+        # State = [1, 2, 3, 4, 5]
+        # 1 snake_head_x
+        # 2 snake_head_y
+        # 3 snake_body = [body parts]
+        # 4 food_x
+        # 5 food_y 
 
+        # based of of snake head location 
+        # can it go up, down, left, or right
+        # for each direction
+        # is there a wall
+        # is there a body part in the way
+        # if both false add direction into array of potential moves
+        
+        # initialize state variables for convenience
+        snake_head_x = state[0]
+        snake_head_y = state[1]
+        snake_body = state[2]
+        food_x = state[3]
+        food_y = state[4]
+        moves = []
+        # 0 = up, 1 = down, 2 = left, 3 = right
+        for i in range(0, 4):
+            if i == 0: #up case
+                if snake_head_y + 40 == 480: #if border is above, can't move up
+                    continue
+                for b in snake_body: # check if no body part is in the way
+                    if snake_head_y + 40 == b[1]: #check if body part is above
+                        continue
+                moves.append(0)
+            if i == 1: #down case
+                if snake_head_y - 40 == 480: #if border is below, can't move down
+                    continue
+                for b in snake_body: # check if no body part is in the way
+                    if snake_head_y - 40 == b[1]: #check if body part is below
+                        continue
+                moves.append(1)
+            if i == 2: #left case
+                if snake_head_x - 40 == 480: #if border is to the left, can't move there
+                    continue
+                for b in snake_body: # check if no body part is in the way
+                    if snake_head_x - 40 == b[0]: #check if body part is to the left
+                        continue
+                moves.append(2)
+            if i == 3: #right case
+                if snake_head_x + 40 == 480: #if border is to the right, can't move there
+                    continue
+                for b in snake_body: # check if no body part is in the way
+                    if snake_head_x + 40 == b[0]: #check if body is to the right
+                        continue
+                moves.append(3)
+        return moves
 
     # Computing the reward, need not be changed.
     def compute_reward(self, points, dead):
@@ -98,6 +144,12 @@ class SnakeAgent:
     #   states as mentioned in helper_func, use the state variable to contain all that.
     def agent_action(self, state, points, dead):
         print("IN AGENT_ACTION")
+        print(state)
+        moves = self.helper_func(state)
+        if 0 in moves:
+            return 0
+        else:
+            return 
         # YOUR CODE HERE
         # YOUR CODE HERE
         # YOUR CODE HERE
