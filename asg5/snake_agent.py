@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.core.fromnumeric import argmax
 import helper
 import random
 
@@ -185,13 +186,144 @@ class SnakeAgent:
     #   states as mentioned in helper_func, use the state variable to contain all that.
     def agent_action(self, state, points, dead):
         print("IN AGENT_ACTION")
-        print(state)
-        moves = self.helper_func(state)
-        self.load_model()
-        print(self.Q)
-        print(len(self.Q))
-        quit()
-        
+       
+        self.load_model() #load model
+        self.N = np.copy(self.Q) # copy array into N to modify
+
+        q_index = self.helper_func(state) #fetch q values of current state
+        q_values = self.Q[q_index[0], q_index[1], q_index[2],q_index[3], q_index[4], q_index[5], q_index[6], q_index[7]]
+        print(q_values)
+        print(type(q_values))
+
+        if self._train: # if training 
+            #chekc up down left right
+            
+            for x in range(0, 4):
+                new_state = np.copy(state) #create copy of state to modify
+
+                if x == 0: # check up case
+                    prev = (new_state[0], new_state[1]) # save head to then modify body parts
+                    snake_body = new_state[2]
+                    for i in range(len(snake_body)): # loop through each body part
+                        temp = snake_body[i]
+                        snake_body[i] = prev # set current body part to prev one
+                        prev = temp
+                    new_state[1] -= 40 #move snake_head_y up by 40
+                    up_index = self.helper_func(new_state) #call helper func on state moved up
+                    up_values = self.Q[up_index[0], up_index[1], up_index[2], up_index[3], up_index[4], up_index[5], up_index[6], up_index[7]]
+                    
+                    #check if dead after move
+                    if new_state[1] == 0: #if up is wall, its dead
+                        dead = True
+                    else:
+                        for j in new_state[2]: #check if up is a body, we die
+                            if new_state[0] == j[0] and new_state[1] == j[1]:
+                                dead = True
+
+                    #check if food eaten when going up
+                    if new_state[0] == new_state[3] and new_state[1] == new_state[4]:
+                        points += 1
+                        
+                    #sample = reWARD(up) + gamma * max(up_values)
+                    sample = self.compute_reward(points, dead) + (self.gamma * np.amax(up_values))
+
+                    #set new q value for up move
+                    q_values[x] = (1 - 0.7) * q_values[x] + 0.7 * sample
+
+                if x == 1: # check down case
+                    prev = (new_state[0], new_state[1]) # save head to then modify body parts
+                    snake_body = new_state[2]
+                    for i in range(len(snake_body)): # loop through each body part
+                        temp = snake_body[i]
+                        snake_body[i] = prev # set current body part to prev one
+                        prev = temp
+                    new_state[1] += 40 #move snake_head_y down by 40
+                    up_index = self.helper_func(new_state) #call helper func on state moved down
+                    up_values = self.Q[up_index[0], up_index[1], up_index[2], up_index[3], up_index[4], up_index[5], up_index[6], up_index[7]]
+                    
+                    #check if dead after move
+                    if new_state[1] == 520: #if down is wall, its dead
+                        dead = True
+                    else:
+                        for j in new_state[2]: #check if down is a body, we die
+                            if new_state[0] == j[0] and new_state[1] == j[1]:
+                                dead = True
+
+                    #check if food eaten when going up
+                    if new_state[0] == new_state[3] and new_state[1] == new_state[4]:
+                        points += 1
+                        
+                    #sample = reWARD(up) + gamma * max(up_values)
+                    sample = self.compute_reward(points, dead) + (self.gamma * np.amax(up_values))
+
+                    #set new q value for up move
+                    q_values[x] = (1 - 0.7) * q_values[x] + 0.7 * sample
+                
+                if x == 2: # check left case
+                    prev = (new_state[0], new_state[1]) # save head to then modify body parts
+                    snake_body = new_state[2]
+                    for i in range(len(snake_body)): # loop through each body part
+                        temp = snake_body[i]
+                        snake_body[i] = prev # set current body part to prev one
+                        prev = temp
+                    new_state[0] -= 40 #move snake_head_x left by 40
+                    up_index = self.helper_func(new_state) #call helper func on state moved down
+                    up_values = self.Q[up_index[0], up_index[1], up_index[2], up_index[3], up_index[4], up_index[5], up_index[6], up_index[7]]
+                    
+                    #check if dead after move
+                    if new_state[0] == 0: #if down is wall, its dead
+                        dead = True
+                    else:
+                        for j in new_state[2]: #check if down is a body, we die
+                            if new_state[0] == j[0] and new_state[1] == j[1]:
+                                dead = True
+
+                    #check if food eaten when going up
+                    if new_state[0] == new_state[3] and new_state[1] == new_state[4]:
+                        points += 1
+                        
+                    #sample = reWARD(up) + gamma * max(up_values)
+                    sample = self.compute_reward(points, dead) + (self.gamma * np.amax(up_values))
+
+                    #set new q value for up move
+                    q_values[x] = (1 - 0.7) * q_values[x] + 0.7 * sample
+                    
+                if x == 3: # check right case
+                    prev = (new_state[0], new_state[1]) # save head to then modify body parts
+                    snake_body = new_state[2]
+                    for i in range(len(snake_body)): # loop through each body part
+                        temp = snake_body[i]
+                        snake_body[i] = prev # set current body part to prev one
+                        prev = temp
+                    new_state[0] += 40 #move snake_head_x right by 40
+                    up_index = self.helper_func(new_state) #call helper func on state moved down
+                    up_values = self.Q[up_index[0], up_index[1], up_index[2], up_index[3], up_index[4], up_index[5], up_index[6], up_index[7]]
+                    
+                    #check if dead after move
+                    if new_state[0] == 520: #if down is wall, its dead
+                        dead = True
+                    else:
+                        for j in new_state[2]: #check if down is a body, we die
+                            if new_state[0] == j[0] and new_state[1] == j[1]:
+                                dead = True
+
+                    #check if food eaten when going up
+                    if new_state[0] == new_state[3] and new_state[1] == new_state[4]:
+                        points += 1
+                        
+                    #sample = reWARD(up) + gamma * max(up_values)
+                    sample = self.compute_reward(points, dead) + (self.gamma * np.amax(up_values))
+
+                    #set new q value for up move
+                    q_values[x] = (1 - 0.7) * q_values[x] + 0.7 * sample
+            
+            #save new q values into q table
+            self.Q[q_index[0], q_index[1], q_index[2],q_index[3], q_index[4], q_index[5], q_index[6], q_index[7]] = q_values
+            self.save_model()
+
+        # get index of max of q_values to determine next action
+        action = np.argmax(q_values)
+        print(action)
         # call helper function to get current state indexs = [0, 0, 0, 0]
         #
         # 
@@ -203,4 +335,4 @@ class SnakeAgent:
         # return max
 
         #UNCOMMENT THIS TO RETURN THE REQUIRED ACTION.
-        #return action
+        return action
