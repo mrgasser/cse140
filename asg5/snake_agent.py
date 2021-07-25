@@ -58,6 +58,10 @@ class SnakeAgent:
     #   moves it can make lead it into the snake body and so on. 
     #   This can return a list of variables that help you keep track of
     #   conditions mentioned above.
+    
+    # x values 0 = none or false, 1 = left or true, 2 = right
+    # y value  0 = none, 1 = up, 2 = down
+    #
     def helper_func(self, state):
         print("IN helper_func")
         # State = [1, 2, 3, 4, 5]
@@ -67,51 +71,88 @@ class SnakeAgent:
         # 4 food_x
         # 5 food_y 
 
-        # based of of snake head location 
-        # can it go up, down, left, or right
-        # for each direction
-        # is there a wall
-        # is there a body part in the way
-        # if both false add direction into array of potential moves
-        
-        # initialize state variables for convenience
         snake_head_x = state[0]
         snake_head_y = state[1]
         snake_body = state[2]
         food_x = state[3]
         food_y = state[4]
-        moves = []
-        # 0 = up, 1 = down, 2 = left, 3 = right
-        for i in range(0, 4):
-            if i == 0: #up case
-                if snake_head_y - 40 < 40: #if border is above, can't move up
-                    continue
-                for b in snake_body: # check if no body part is in the way
-                    if snake_head_y - 40 == b[1]: #check if body part is above
-                        continue
-                moves.append(0)
-            if i == 1: #down case
-                if snake_head_y + 40 > 480: #if border is below, can't move down
-                    continue
-                for b in snake_body: # check if no body part is in the way
-                    if snake_head_y + 40 == b[1]: #check if body part is below
-                        continue
-                moves.append(1)
-            if i == 2: #left case
-                if snake_head_x - 40 < 40: #if border is to the left, can't move there
-                    continue
-                for b in snake_body: # check if no body part is in the way
-                    if snake_head_x - 40 == b[0]: #check if body part is to the left
-                        continue
-                moves.append(2)
-            if i == 3: #right case
-                if snake_head_x + 40 > 480: #if border is to the right, can't move there
-                    continue
-                for b in snake_body: # check if no body part is in the way
-                    if snake_head_x + 40 == b[0]: #check if body is to the right
-                        continue
-                moves.append(3)
-        return moves
+        q_table_index = []
+        body_check = False
+
+        #check snake x values
+        if snake_head_x + 40 == 520: #check if wall on left
+            q_table_index.append(1)
+        elif snake_head_x - 40 == 0:  #check if wall on right
+            q_table_index.append(2)
+        else: # not touching wall on left or right
+            q_table_index.append(0) 
+
+        #check snake y values
+        if snake_head_y - 40 == 0: #check if wall on top
+            q_table_index.append(1)
+        elif snake_head_y + 40 == 520: #check if wall on bottom
+            q_table_index.append(2)
+        else: # not touching wall on top or bottom
+            q_table_index.append(0)
+        
+        #check food x value
+        if snake_head_x > food_x: #if food < snake x, food on left
+            q_table_index.append(1)
+        elif snake_head_x < food_x: #if food > snake x, food on right
+            q_table_index.append(2)
+        else: #food in same column
+            q_table_index.append(0)
+
+        #check food y value
+        if snake_head_y > food_y: #if food < snake y, food on top
+            q_table_index.append(1)
+        elif snake_head_y < food_y: #if food > snake x, food bellow
+            q_table_index.append(2)
+        else: #food in same row
+            q_table_index.append(0)
+        
+        #check snake body above
+        for i in snake_body: # loop through each body
+            if snake_head_y - 40 == i[1]: #check if body above head
+                body_check = True
+                break
+        if body_check: # if body above append 1, else append 0
+            q_table_index.append(1)
+            body_check = False
+        else:
+            q_table_index.append(0)
+
+        #check snake body bottom
+        for i in snake_body: # loop through each body
+            if snake_head_y + 40 == i[1]: #check if body is bellow the head
+                body_check = True
+                break
+        if body_check: # if body bellow append 1, else append 0
+            q_table_index.append(1)
+        else:
+            q_table_index.append(0)
+
+        #check snake body to left
+        for i in snake_body: # loop through each body
+            if snake_head_x - 40 == i[0]: #check if body is to the left of head
+                body_check = True
+                break
+        if body_check: # if body left append 1, else append 0
+            q_table_index.append(1)
+        else:
+            q_table_index.append(0)
+        
+        #check snake body to right
+        for i in snake_body: # loop through each body
+            if snake_head_x + 40 == i[0]: #check if body is to the right of head
+                body_check = True
+                break
+        if body_check: # if body right append 1, else append 0
+            q_table_index.append(1)
+        else:
+            q_table_index.append(0)
+
+        return q_table_index # return list containing indexs of Q table for given state
 
     # Computing the reward, need not be changed.
     def compute_reward(self, points, dead):
@@ -146,18 +187,20 @@ class SnakeAgent:
         print("IN AGENT_ACTION")
         print(state)
         moves = self.helper_func(state)
+        self.load_model()
+        print(self.Q)
+        print(len(self.Q))
+        quit()
         
-        if 1 in moves:
-            return 1
-        elif 3 in moves:
-            return 3
-        # YOUR CODE HERE
-        # YOUR CODE HERE
-        # YOUR CODE HERE
-        # YOUR CODE HERE
-        # YOUR CODE HERE
-        # YOUR CODE HERE
-        # YOUR CODE HERE
+        # call helper function to get current state indexs = [0, 0, 0, 0]
+        #
+        # 
+        # if training 
+        #         calculate new q values for up down left right
+        #         update table with those values
+        # else
+        # select max from current state
+        # return max
 
         #UNCOMMENT THIS TO RETURN THE REQUIRED ACTION.
         #return action
