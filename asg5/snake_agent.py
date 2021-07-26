@@ -65,12 +65,12 @@ class SnakeAgent:
     #
     def helper_func(self, state):
         print("IN helper_func")
-        # State = [1, 2, 3, 4, 5]
-        # 1 snake_head_x
-        # 2 snake_head_y
-        # 3 snake_body = [body parts]
-        # 4 food_x
-        # 5 food_y 
+        # State = [0, 1, 2, 3, 4]
+        # 0 snake_head_x
+        # 1 snake_head_y
+        # 2 snake_body = [body parts]
+        # 3 food_x
+        # 4 food_y 
 
         snake_head_x = state[0]
         snake_head_y = state[1]
@@ -192,8 +192,8 @@ class SnakeAgent:
 
         q_index = self.helper_func(state) #fetch q values of current state
         q_values = self.Q[q_index[0], q_index[1], q_index[2],q_index[3], q_index[4], q_index[5], q_index[6], q_index[7]]
-        print(q_values)
-        print(type(q_values))
+        #print(q_values)
+        #print(type(q_values))
 
         if self._train: # if training 
             #chekc up down left right
@@ -323,7 +323,6 @@ class SnakeAgent:
 
         # get index of max of q_values to determine next action
         action = np.argmax(q_values)
-        print(action)
         # call helper function to get current state indexs = [0, 0, 0, 0]
         #
         # 

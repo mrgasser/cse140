@@ -42,28 +42,38 @@ class SnakeGame:
         NUM_TO_STAT = self.args.NUM_TO_STAT
         self.points_results = []
         start = time.time()
+        self.env.display()
+        pygame.event.pump()
 
         #   This loop will train for required number of times
         #   WRITE YOUR CODE IN THIS LOOP TO CALL THE TRAINING FUNCTION.
         #   AS TRAINING IS HAPPENING THE CODE IN THE LOOP WILL PRINT STATISTICS.
         #   Use self.env.reset() to reset your game after each iteration.
         for game in range(1, self.args.NUM_TRAIN_ITER + 1):
-                print("TRAINING NUMBER : " + str(game))
-            # YOUR CODE HERE
-            # YOUR CODE HERE
-            # YOUR CODE HERE
-            # YOUR CODE HERE
-            # YOUR CODE HERE
-
+            print("TRAINING NUMBER : " + str(game))
+            state = self.env.get_state()
+            dead = False
+            action = self.agent.agent_action(state, 0, dead)
+            count = 0
+            while not dead:
+                count +=1
+                pygame.event.pump()
+                state, points, dead = self.env.step(action)
+                # Qlearning agent
+                action = self.agent.agent_action(state, points, dead)
+            #after game, reset
+            print("GAME OVER\n\n\n")
+            self.env.reset()
+            self.points_results.append(points)
             #UNCOMMENT THE CODE BELOW TO PRINT STATISTICS
-            #if game % self.args.NUM_TO_STAT == 0:
-            #    print(
-            #        "Played games:", len(self.points_results) - NUM_TO_STAT, "-", len(self.points_results), 
-            #        "Calculated points (Average:", sum(self.points_results[-NUM_TO_STAT:])/NUM_TO_STAT,
-            #        "Max points so far:", max(self.points_results[-NUM_TO_STAT:]),
-            #        "Min points so far:", min(self.points_results[-NUM_TO_STAT:]),")",
-            #    )
-            # YOUR CODE HERE
+            if game % self.args.NUM_TO_STAT == 0:
+                print(
+                    "Played games:", len(self.points_results) - NUM_TO_STAT, "-", len(self.points_results), 
+                    "Calculated points (Average:", sum(self.points_results[-NUM_TO_STAT:])/NUM_TO_STAT,
+                    "Max points so far:", max(self.points_results[-NUM_TO_STAT:]),
+                    "Min points so far:", min(self.points_results[-NUM_TO_STAT:]),")",
+                )
+
         print("Training takes", time.time() - start, "seconds")
         #   THIS LINE WILL SAVE THE MODEL TO THE FILE "model.npy"
         self.agent.save_model()
@@ -84,7 +94,6 @@ class SnakeGame:
         #   Use self.env.reset() to reset your state everytime a new game begins.
         for game in range(1, self.args.NUM_TEST_ITER + 1):
             print("TESTING NUMBER: " + str(game))
-                
             # YOUR CODE HERE
             # YOUR CODE HERE
             # YOUR CODE HERE
